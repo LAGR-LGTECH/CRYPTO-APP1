@@ -1,0 +1,131 @@
+
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bell, TrendingUp, Newspaper } from 'lucide-react';
+
+// Mock data - in a real app, these would come from APIs
+const mockPrices = [
+  { name: 'Bitcoin', currentPrice: 50000, change: 2.5 },
+  { name: 'Ethereum', currentPrice: 3000, change: -1.2 },
+  { name: 'Cardano', currentPrice: 1.2, change: 3.7 }
+];
+
+const mockNews = [
+  { id: 1, title: 'Bitcoin Hits New All-Time High', source: 'CryptoNews' },
+  { id: 2, title: 'Ethereum 2.0 Upgrade Completed', source: 'BlockchainToday' },
+  { id: 3, title: 'New Crypto Regulation Proposed', source: 'Financial Times' }
+];
+
+const PriceAlert = ({ coin, threshold, type }) => {
+  return (
+    <div className="flex items-center gap-4 p-3 bg-gray-100 rounded-lg">
+      <Bell className="text-yellow-500" />
+      <div>
+        <p className="font-bold">{coin} Price Alert</p>
+        <p>{type === 'above' ? 'Above' : 'Below'} ${threshold}</p>
+      </div>
+    </div>
+  );
+};
+
+const CryptoDashboard = () => {
+  const [prices, setPrices] = useState(mockPrices);
+  const [news, setNews] = useState(mockNews);
+  const [alerts, setAlerts] = useState([
+    { coin: 'Bitcoin', threshold: 55000, type: 'above' },
+    { coin: 'Ethereum', threshold: 2800, type: 'below' }
+  ]);
+
+  const [portfolioHoldings, setPortfolioHoldings] = useState([
+    { coin: 'Bitcoin', amount: 0.5, avgPrice: 48000 },
+    { coin: 'Ethereum', amount: 10, avgPrice: 2900 }
+  ]);
+
+  const addAlert = (coin, threshold, type) => {
+    setAlerts([...alerts, { coin, threshold, type }]);
+  };
+
+  const removeAlert = (index) => {
+    const newAlerts = alerts.filter((_, i) => i !== index);
+    setAlerts(newAlerts);
+  };
+
+  return (
+    <div className="p-6 bg-white rounded-xl shadow-lg">
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-3">
+        <TrendingUp /> Crypto Dashboard
+      </h1>
+
+      {/* Price Tracking Section */}
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Current Prices</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {prices.map((coin) => (
+            <div key={coin.name} className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-bold">{coin.name}</h3>
+              <p className="text-2xl">${coin.currentPrice}</p>
+              <p className={`text-sm ${coin.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {coin.change >= 0 ? '▲' : '▼'} {Math.abs(coin.change)}%
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Price Alerts Section */}
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Price Alerts</h2>
+        <div className="space-y-3">
+          {alerts.map((alert, index) => (
+            <PriceAlert 
+              key={index} 
+              coin={alert.coin} 
+              threshold={alert.threshold} 
+              type={alert.type}
+            />
+          ))}
+        </div>
+        <button 
+          onClick={() => addAlert('Cardano', 1.5, 'above')} 
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Add New Alert
+        </button>
+      </section>
+
+      {/* News Section */}
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-4 flex items-center gap-3">
+          <Newspaper /> Crypto News
+        </h2>
+        <div className="space-y-4">
+          {news.map((article) => (
+            <div key={article.id} className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-bold">{article.title}</h3>
+              <p className="text-sm text-gray-600">{article.source}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Portfolio Tracking */}
+      <section>
+        <h2 className="text-xl font-semibold mb-4">My Portfolio</h2>
+        <div className="space-y-4">
+          {portfolioHoldings.map((holding) => (
+            <div key={holding.coin} className="bg-gray-50 p-4 rounded-lg">
+              <div className="flex justify-between">
+                <h3 className="font-bold">{holding.coin}</h3>
+                <p>{holding.amount} coins</p>
+              </div>
+              <p>Avg. Purchase Price: ${holding.avgPrice}</p>
+              <p>Current Value: ${(holding.amount * prices.find(p => p.name === holding.coin).currentPrice).toFixed(2)}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default CryptoDashboard;
